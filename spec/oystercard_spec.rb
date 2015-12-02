@@ -1,7 +1,7 @@
 require 'oystercard'
 
 describe Oystercard do
-  subject(:card) { described_class.new }
+  subject(:card) { described_class.new}
   let(:maximum_balance) { Oystercard::MAXIMUM_BALANCE}
   let(:minimum_fare) {Oystercard::MINIMUM_FARE}
   let(:station) {double :station}
