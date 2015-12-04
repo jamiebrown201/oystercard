@@ -2,6 +2,7 @@ describe "Feature Tests" do
 
   let(:card) {Oystercard.new}
   let(:journey) {Journey.new}
+  let(:journey_log) {JourneyLog.new}
   let(:rand_number) {rand(20..40)}
   let(:station) {Station.new('Test Station', 3)}
   let(:maximum_balance) {Oystercard::MAXIMUM_BALANCE}
@@ -84,7 +85,7 @@ describe "Feature Tests" do
         card.top_up(rand_number)
         card.touch_in(entry_station)
         card.touch_out(exit_station)
-        expect(card.journey_history).to eq [{entry_station: entry_station, exit_station: exit_station}]
+        expect(card.journey_log.journey_history[0][:exit_station]).to eq exit_station
       end
     end
 

@@ -12,11 +12,6 @@ describe Oystercard do
 
   describe '#initialize' do
 
-
-    it 'has an empty journey list' do
-      expect(card.journey_history).to eq []
-    end
-
   end
 
   describe '#balance' do
@@ -70,12 +65,6 @@ describe Oystercard do
       allow(journey).to receive(:current_journey).and_return({entry_station: station, exit_station: station})
     end
 
-      it 'can recall previous journeys' do
-        card.top_up(rand_number)
-        card.touch_in(station)
-        card.touch_out(station)
-        expect(card.journey_history).to eq [{entry_station: station, exit_station:station}]
-      end
     end
   end
 end
