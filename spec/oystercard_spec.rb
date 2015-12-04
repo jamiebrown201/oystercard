@@ -1,9 +1,11 @@
 require 'oystercard'
 
 describe Oystercard do
-  subject(:card) { described_class.new(journey)}
+  subject(:card) { described_class.new}
+  let(:rand_number) {rand(20..50)}
   let(:maximum_balance) { Oystercard::MAXIMUM_BALANCE}
   let(:minimum_balance) {Oystercard::MINIMUM_BALANCE}
+  let(:fare) {Oystercard::FARE}
   let(:station) {double :station}
   let(:journey) {double :journey, start_journey: station, end_journey: station, current_journey: nil, clear_history: {} }
 
@@ -40,11 +42,24 @@ describe Oystercard do
       expect{ card.touch_in(station) }.to raise_error "Insufficent funds: top up"
     end
 
+    it 'deducts penalty fair when not touched out' do
+      card.top_up(rand_number)
+      card.touch_in(station)
+      expect{card.touch_in(station)}.to change{card.balance}.by (-Oystercard::PENALTY_FARE)
+    end
+
   end
 
   describe '#touch_out' do
     it 'charges customer when they tap out' do
-      expect{card.touch_out((station))}.to change{card.balance}.by(-minimum_balance)
+      card.top_up(40)
+      card.touch_in(station)
+      expect{card.touch_out((station))}.to change{card.balance}.by(-fare)
+    end
+
+    it 'deducts penalty fair when not touched in' do
+      card.top_up(rand_number)
+      expect{card.touch_out(station)}.to change{card.balance}.by (-Oystercard::PENALTY_FARE)
     end
 
   end
@@ -56,7 +71,7 @@ describe Oystercard do
     end
 
       it 'can recall previous journeys' do
-        card.top_up(minimum_balance)
+        card.top_up(rand_number)
         card.touch_in(station)
         card.touch_out(station)
         expect(card.journey_history).to eq [{entry_station: station, exit_station:station}]

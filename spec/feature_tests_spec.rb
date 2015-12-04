@@ -1,7 +1,8 @@
 describe "Feature Tests" do
 
-  let(:card) {Oystercard.new(journey)}
+  let(:card) {Oystercard.new}
   let(:journey) {Journey.new}
+  let(:rand_number) {rand(20..40)}
   let(:station) {Station.new('Test Station', 3)}
   let(:maximum_balance) {Oystercard::MAXIMUM_BALANCE}
   let(:minimum_balance) {Oystercard::MINIMUM_BALANCE}
@@ -25,30 +26,45 @@ describe "Feature Tests" do
     end
 
     describe '#touch_in' do
+      before do
+        card.top_up(rand_number)
+      end
       it 'allows a card to touch in and begin journey if balance greater than minimum fare' do
-        card.top_up(minimum_balance)
         card.touch_in(station)
-        expect(journey.current_journey[:entry_station]).to eq(station)
+        expect(card.journey.current_journey[:entry_station]).to eq(station)
       end
 
       it 'raise error if card balance is zero' do
+        card.top_up(-90)
         expect{card.touch_in(station)}.to raise_error "Insufficent funds: top up"
       end
 
       it 'remembers the station the journey started from' do
-        card.top_up(minimum_balance)
         card.touch_in(station)
-        expect(journey.current_journey[:entry_station]).to eq station
+        expect(card.journey.current_journey[:entry_station]).to eq station
       end
+
+      it 'charges a penalty fair if failed to touch_out' do
+        card.touch_in(station)
+        expect{card.touch_in(station)}.to change{card.balance}.by (-Oystercard::PENALTY_FARE)
+      end
+
+  # In order to be charged correctly
+  # As a customer
+  # I need a penalty charge deducted if I fail to touch in or out
     end
 
     describe '#touch_out' do
+      before do
+        card.top_up(rand_number)
+      end
       it 'allows a card to touch out and end a journey' do
           card.touch_out(station)
           expect(journey.current_journey[:entry_station]).to eq(nil)
       end
 
       it 'charges customer when they tap out' do
+        card.touch_in(station)
         expect{card.touch_out((station))}.to change{card.balance}.by(-minimum_balance)
       end
 
@@ -65,11 +81,15 @@ describe "Feature Tests" do
       it 'can recall all previous journeys' do
         entry_station = double(:station)
         exit_station = double(:station)
-        card.top_up(minimum_balance)
+        card.top_up(rand_number)
         card.touch_in(entry_station)
         card.touch_out(exit_station)
         expect(card.journey_history).to eq [{entry_station: entry_station, exit_station: exit_station}]
       end
+    end
+
+    it 'charges a penalty fair if failed to touch_in' do
+      expect{card.touch_out(station)}.to change{card.balance}.by (-Oystercard::PENALTY_FARE)
     end
   end
 
