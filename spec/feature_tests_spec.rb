@@ -32,7 +32,7 @@ describe "Feature Tests" do
       end
       it 'allows a card to touch in and begin journey if balance greater than minimum fare' do
         card.touch_in(station)
-        expect(card.journey.current_journey[:entry_station]).to eq(station)
+        expect(card.journey_klass.current_journey[:entry_station]).to eq(station)
       end
 
       it 'raise error if card balance is zero' do
@@ -42,7 +42,7 @@ describe "Feature Tests" do
 
       it 'remembers the station the journey started from' do
         card.touch_in(station)
-        expect(card.journey.current_journey[:entry_station]).to eq station
+        expect(card.journey_klass.current_journey[:entry_station]).to eq station
       end
 
       it 'charges a penalty fair if failed to touch_out' do
@@ -85,7 +85,7 @@ describe "Feature Tests" do
         card.top_up(rand_number)
         card.touch_in(entry_station)
         card.touch_out(exit_station)
-        expect(card.journey_log.journey_history[0][:exit_station]).to eq exit_station
+        expect(card.journey_log_klass.journey_history[0][:exit_station]).to eq exit_station
       end
     end
 
